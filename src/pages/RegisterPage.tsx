@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
-// تأكد أن هذا الرابط هو نفس رابط الـ API (اللوكال)
-const API_URL = "http://localhost:5135";
+import { API_BASE } from "../config";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -24,7 +22,7 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const response = await fetch(`${API_URL}/register`, {
+      const response = await fetch(`${API_BASE}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

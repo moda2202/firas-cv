@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate, useLocation, Link } from "react-router-dom"; // أضفنا useLocation
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
-// ⚠️ هام: تأكد أن هذا الرابط هو نفس رابط الـ API تبعك (نفس اللي بملف .http)
-const API_URL = "http://localhost:5135";
+import { API_BASE } from "../config";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -17,7 +16,7 @@ export default function LoginPage() {
 
     const handleGoogleSuccess = async (credentialResponse: any) => {
         try {
-            const response = await fetch(`${API_URL}/api/auth/google-login`, {
+            const response = await fetch(`${API_BASE}/api/auth/google-login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ credential: credentialResponse.credential }),
@@ -41,7 +40,7 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const response = await fetch(`${API_URL}/login`, {
+            const response = await fetch(`${API_BASE}/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),

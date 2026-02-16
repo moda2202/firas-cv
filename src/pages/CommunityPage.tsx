@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-
-// تأكد أن الرابط نفس البورت اللي شغال عندك
-const API_URL = "http://localhost:5135";
+import { API_BASE } from "../config";
 
 export default function CommunityPage() {
   const { token, logout } = useAuth();
@@ -13,7 +11,7 @@ export default function CommunityPage() {
     // دالة لجلب البيانات السرية
     const fetchData = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/community`, {
+        const response = await fetch(`${API_BASE}/api/community`, {
           method: "GET",
           headers: {
             // 🔑 هنا السحر! نرسل التوكن للسيرفر ليسمح لنا بالدخول
