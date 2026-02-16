@@ -1,29 +1,52 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-// 1. تعريف شكل البيانات (Types)
+import { jwtDecode } from "jwt-decode"; // 👈 استيراد المكتبة الجديدة
+
+// 1. تعريف شكل بيانات المستخدم (User)
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+}
+
+// تعريف شكل السياق (تمت إضافة user هنا)
 interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
+  user: User | null; // ✅ هذا هو الحل للمشكلة
   login: (token: string) => void;
   logout: () => void;
 }
 
-// إنشاء السياق بقيمة مبدئية غير معرفة
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 2. المزود (Provider)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // نحاول قراءة التوكن من الذاكرة عند بدء التشغيل
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("siteToken")
-  );
+  const [token, setToken] = useState<string | null>(localStorage.getItem("siteToken"));
+  const [user, setUser] = useState<User | null>(null);
+
+  const decodeUser = (token: string): User | null => {
+    try {
+      const decoded: any = jwtDecode(token);
+      return {
+        // قراءة الـ ID من التوكن (nameid) 👇
+        id: decoded.nameid || decoded.sub || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+        email: decoded.email || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+        firstName: String(decoded.given_name || decoded.unique_name || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"] || "User"),
+      };
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     if (token) {
       localStorage.setItem("siteToken", token);
+      setUser(decodeUser(token));
     } else {
       localStorage.removeItem("siteToken");
+      setUser(null);
     }
   }, [token]);
 
@@ -35,17 +58,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
   };
 
-  // المتغير isAuthenticated يسهل علينا الفحص في باقي الصفحات
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ token, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ token, isAuthenticated, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// 3. هوك مخصص (Custom Hook) لسهولة الاستخدام
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

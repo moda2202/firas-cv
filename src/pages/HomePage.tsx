@@ -1,12 +1,13 @@
-// src/pages/HomePage.tsx
-import "../index.css"; // تأكد أن هذا الملف موجود في src
+import "../index.css";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Certificate } from "../types/cv";
 
 import { useCvData } from "../hooks/useCvData";
 import { useScrollSpy } from "../hooks/useScrollSpy";
 
-import { Header } from "../components/layout/Header";
+// 👇 نستخدم الهيدر الجديد (بدون Props)
+import { AuthHeader } from "../components/layout/AuthHeader";
 import { Sidebar } from "../components/layout/Sidebar";
 
 import { SummarySection } from "../components/sections/SummarySection";
@@ -17,17 +18,15 @@ import { CertificatesSection } from "../components/sections/CertificatesSection"
 import { ProjectsSection } from "../components/sections/ProjectsSection";
 
 import { CertificateModal } from "../components/certificates/CertificateModal";
-// استيراد الهوك الخاص بالتنقل
-import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
   const { cv, loading, error } = useCvData();
   const activeSection = useScrollSpy("summary");
-  const navigate = useNavigate(); // هوك للتنقل بين الصفحات
-
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
+  // دالة نسخ الإيميل
   async function copyEmail(email: string) {
     try {
       await navigator.clipboard.writeText(email);
@@ -38,16 +37,31 @@ export default function HomePage() {
     }
   }
 
+  // دالة التمرير السلس
   function scrollToSection(id: string) {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (el) {
+        const headerOffset = 80;
+        const elementPosition = el.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+        });
+    }
     history.replaceState(null, "", `#${id}`);
   }
 
-  function onCommunityClick() {
-    // بدل الـ alert، الآن سننتقل للصفحة فعلياً
-    navigate("/community");
-  }
+  // قائمة الأقسام للتنقل السريع
+  const sections = [
+    { id: "summary", label: "Summary" },
+    { id: "skills", label: "Skills" },
+    { id: "education", label: "Education" },
+    { id: "experience", label: "Experience" },
+    { id: "certificates", label: "Certificates" },
+    { id: "projects", label: "Projects" },
+  ];
 
   if (loading) {
     return (
@@ -77,25 +91,40 @@ export default function HomePage() {
 
   return (
     <div className="app">
-      <Header
-        activeSection={activeSection}
-        onNavigate={scrollToSection}
-        onCommunityClick={onCommunityClick}
-      />
+      {/* ✅ 1. الهيدر الرئيسي (بدون أي props) */}
+      <AuthHeader />
+
+      {/* ✅ 2. شريط التنقل الفرعي (الجديد) */}
+      <div className="cv-subnav glass">
+        <div className="cv-subnav-content">
+            {sections.map((sec) => (
+                <button
+                    key={sec.id}
+                    onClick={() => scrollToSection(sec.id)}
+                    className={`subnav-link ${activeSection === sec.id ? "active" : ""}`}
+                >
+                    {sec.label}
+                </button>
+            ))}
+        </div>
+      </div>
 
       <main className="layout">
+        {/* ✅ تصحيح Sidebar: نمرر الدالة مباشرة وهو يتصرف */}
         <Sidebar cv={cv} copied={copied} onCopyEmail={copyEmail} />
 
         <section className="content">
-          <SummarySection text={cv.summary} />
-          <SkillsSection cv={cv} />
-          <EducationSection cv={cv} />
-          <ExperienceSection cv={cv} />
-          <CertificatesSection
-            certificates={cv.certificates}
-            onSelect={setSelectedCert}
-          />
-          <ProjectsSection cv={cv} />
+            <div id="summary"><SummarySection text={cv.summary} /></div>
+            <div id="skills"><SkillsSection cv={cv} /></div>
+            <div id="education"><EducationSection cv={cv} /></div>
+            <div id="experience"><ExperienceSection cv={cv} /></div>
+            <div id="certificates">
+                <CertificatesSection
+                    certificates={cv.certificates}
+                    onSelect={setSelectedCert}
+                />
+            </div>
+            <div id="projects"><ProjectsSection cv={cv} /></div>
 
           <footer className="footer muted small">
             Built with ASP.NET Core Web API + React Vite • Data source: cv.json
