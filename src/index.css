@@ -31,7 +31,7 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* Global Image Reset (يمنع الصورة من الانفجار) */
+/* Global Image Reset */
 img {
   max-width: 100%;
   display: block;
@@ -436,7 +436,7 @@ a:hover {
   }
 }
 
-/* ===== CV HERO & COMPONENTS (استعدناها!) ===== */
+/* ===== CV HERO & COMPONENTS ===== */
 .hero {
   padding: 15px;
 }
@@ -456,7 +456,6 @@ a:hover {
   align-items: center;
 }
 
-/* ✅ هنا الإصلاح: تحديد حجم الصورة */
 .hero-avatar {
   width: 150px;
   height: 150px;
@@ -747,6 +746,7 @@ a:hover {
   font-weight: 800;
   background: linear-gradient(to right, #fff, #a5b4fc);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0;
 }

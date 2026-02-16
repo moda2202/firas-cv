@@ -1,20 +1,20 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import { jwtDecode } from "jwt-decode"; // 👈 استيراد المكتبة الجديدة
+import { jwtDecode } from "jwt-decode";
 
-// 1. تعريف شكل بيانات المستخدم (User)
+// 1. User Interface
 interface User {
   id: string;
   email: string;
   firstName: string;
 }
 
-// تعريف شكل السياق (تمت إضافة user هنا)
+// User Context Interface
 interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
-  user: User | null; // ✅ هذا هو الحل للمشكلة
+  user: User | null;
   login: (token: string) => void;
   logout: () => void;
 }
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const decoded: any = jwtDecode(token);
       return {
-        // قراءة الـ ID من التوكن (nameid) 👇
+        // Get ID from token (nameid)
         id: decoded.nameid || decoded.sub || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
         email: decoded.email || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
         firstName: String(decoded.given_name || decoded.unique_name || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"] || "User"),

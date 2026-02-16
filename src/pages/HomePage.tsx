@@ -5,7 +5,7 @@ import type { Certificate } from "../types/cv";
 import { useCvData } from "../hooks/useCvData";
 import { useScrollSpy } from "../hooks/useScrollSpy";
 
-// 👇 نستخدم الهيدر الجديد (بدون Props)
+
 import { AuthHeader } from "../components/layout/AuthHeader";
 import { Sidebar } from "../components/layout/Sidebar";
 
@@ -24,7 +24,6 @@ export default function HomePage() {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // دالة نسخ الإيميل
   async function copyEmail(email: string) {
     try {
       await navigator.clipboard.writeText(email);
@@ -35,7 +34,7 @@ export default function HomePage() {
     }
   }
 
-  // دالة التمرير السلس
+
   function scrollToSection(id: string) {
     const el = document.getElementById(id);
     if (el) {
@@ -51,7 +50,7 @@ export default function HomePage() {
     history.replaceState(null, "", `#${id}`);
   }
 
-  // قائمة الأقسام للتنقل السريع
+
   const sections = [
     { id: "summary", label: "Summary" },
     { id: "skills", label: "Skills" },
@@ -89,10 +88,8 @@ export default function HomePage() {
 
   return (
     <div className="app">
-      {/* ✅ 1. الهيدر الرئيسي (بدون أي props) */}
       <AuthHeader />
 
-      {/* ✅ 2. شريط التنقل الفرعي (الجديد) */}
       <div className="cv-subnav glass">
         <div className="cv-subnav-content">
           {sections.map((sec) => (
@@ -108,7 +105,6 @@ export default function HomePage() {
       </div>
 
       <main className="layout">
-        {/* ✅ تصحيح Sidebar: نمرر الدالة مباشرة وهو يتصرف */}
         <Sidebar cv={cv} copied={copied} onCopyEmail={copyEmail} />
 
         <section className="content">

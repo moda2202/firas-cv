@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { API_BASE } from "../config";
 import { AuthHeader } from "../components/layout/AuthHeader";
 
-// تعريف شكل البيانات القادمة من الباك إند
+// Define shape of data appearing from backend
 interface CommentUser {
   firstName: string;
   lastName: string;
@@ -15,12 +15,12 @@ interface Comment {
   id: number;
   content: string;
   createdAt: string;
-  userId: string; // 👈 مهم للمقارنة
+  userId: string;
   user: CommentUser;
 }
 
 export default function CommunityPage() {
-  const { token, user } = useAuth(); // user هنا يحتوي على الـ id الخاص بي
+  const { token, user } = useAuth(); // user contains my id
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
@@ -30,8 +30,8 @@ export default function CommunityPage() {
   const fetchComments = async () => {
     setLoading(true);
     try {
-      const endpoint = showMyComments 
-        ? `${API_BASE}/api/community/my-comments` 
+      const endpoint = showMyComments
+        ? `${API_BASE}/api/community/my-comments`
         : `${API_BASE}/api/community`;
 
       const headers: any = {};
@@ -80,7 +80,6 @@ export default function CommunityPage() {
     }
   };
 
-  // 🔥 دالة الحذف
   const handleDelete = async (commentId: number) => {
     if (!confirm("Are you sure you want to delete this comment?")) return;
 
@@ -93,7 +92,6 @@ export default function CommunityPage() {
       });
 
       if (response.ok) {
-        // حذف التعليق من الشاشة فوراً
         setComments(comments.filter(c => c.id !== commentId));
       } else {
         alert("Failed to delete comment");
@@ -116,7 +114,7 @@ export default function CommunityPage() {
 
       <div className="page-center" style={{ justifyContent: 'flex-start', paddingTop: '40px' }}>
         <div className="layout" style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '700px' }}>
-          
+
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <h1 className="hero-name" style={{ fontSize: '2.5rem' }}>Community Wall 🌍</h1>
             <p className="hero-title">Share your thoughts, feedback, or say hi!</p>
@@ -134,8 +132,8 @@ export default function CommunityPage() {
                   style={{ resize: 'none', marginBottom: '12px' }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`btn ${showMyComments ? 'primary' : 'ghost'}`}
                     onClick={() => setShowMyComments(!showMyComments)}
                     style={{ fontSize: '0.9rem', color: showMyComments ? '#6366f1' : 'inherit' }}
@@ -173,9 +171,9 @@ export default function CommunityPage() {
               comments.map((comment) => (
                 <div key={comment.id} className="card" style={{ animation: 'slideUpFade 0.4s ease', position: 'relative' }}>
                   <div style={{ display: 'flex', gap: '14px' }}>
-                    <div style={{ 
-                      width: '42px', height: '42px', 
-                      borderRadius: '50%', 
+                    <div style={{
+                      width: '42px', height: '42px',
+                      borderRadius: '50%',
                       background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
                       display: 'grid', placeItems: 'center',
                       fontWeight: 'bold', fontSize: '18px', color: '#fff',
@@ -183,22 +181,22 @@ export default function CommunityPage() {
                     }}>
                       {comment.user?.initial || "?"}
                     </div>
-                    
+
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', alignItems: 'center' }}>
                         <span style={{ fontWeight: 'bold' }}>
                           {comment.user?.firstName} {comment.user?.lastName}
                         </span>
-                        
+
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <span className="small muted">{formatDate(comment.createdAt)}</span>
-                          
-                          {/* 🔥 زر الحذف يظهر فقط لصاحب التعليق */}
+
+                          {/* User only delete button */}
                           {user && user.id === comment.userId && (
-                            <button 
+                            <button
                               onClick={() => handleDelete(comment.id)}
-                              style={{ 
-                                background: 'none', border: 'none', cursor: 'pointer', 
+                              style={{
+                                background: 'none', border: 'none', cursor: 'pointer',
                                 color: '#ef4444', padding: '4px', display: 'flex'
                               }}
                               title="Delete comment"

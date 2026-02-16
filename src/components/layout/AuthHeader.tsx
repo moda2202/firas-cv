@@ -13,10 +13,10 @@ export function AuthHeader() {
         navigate("/login");
     };
 
-    // دالة بسيطة لمعرفة هل الرابط فعال حالياً لتلوينه
+    // Helper to check active path
     const isActive = (path: string) => location.pathname === path;
 
-    // الحصول على الحرف الأول للاسم (أو U إذا لم يوجد)
+    // Get user initial or 'U'
     const userInitial = user?.firstName
         ? String(user.firstName).charAt(0).toUpperCase()
         : "U";
@@ -65,7 +65,7 @@ export function AuthHeader() {
                 {/* 3. Right: Auth Action */}
                 <div className="auth-actions">
                     {token ? (
-                        // ✅ حالة تسجيل الدخول: عرض الاسم + زر الخروج
+                        // Logged in state: Show name + logout
                         <div className="user-profile">
                             <div className="user-info">
                                 <span className="user-name">Hi, {user?.firstName || 'User'}</span>
@@ -80,7 +80,7 @@ export function AuthHeader() {
                             </button>
                         </div>
                     ) : (
-                        // 🔒 حالة الزائر: عرض تسجيل الدخول
+                        // Guest state: Show login
                         <div className="guest-actions">
                             <Link to="/login" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
                                 Log In
