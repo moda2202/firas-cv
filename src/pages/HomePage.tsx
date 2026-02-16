@@ -1,6 +1,5 @@
 import "../index.css";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import type { Certificate } from "../types/cv";
 
 import { useCvData } from "../hooks/useCvData";
@@ -24,7 +23,6 @@ export default function HomePage() {
   const activeSection = useScrollSpy("summary");
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
   const [copied, setCopied] = useState(false);
-  const navigate = useNavigate();
 
   // دالة نسخ الإيميل
   async function copyEmail(email: string) {
@@ -41,14 +39,14 @@ export default function HomePage() {
   function scrollToSection(id: string) {
     const el = document.getElementById(id);
     if (el) {
-        const headerOffset = 80;
-        const elementPosition = el.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      
-        window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth"
-        });
+      const headerOffset = 80;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
     }
     history.replaceState(null, "", `#${id}`);
   }
@@ -97,15 +95,15 @@ export default function HomePage() {
       {/* ✅ 2. شريط التنقل الفرعي (الجديد) */}
       <div className="cv-subnav glass">
         <div className="cv-subnav-content">
-            {sections.map((sec) => (
-                <button
-                    key={sec.id}
-                    onClick={() => scrollToSection(sec.id)}
-                    className={`subnav-link ${activeSection === sec.id ? "active" : ""}`}
-                >
-                    {sec.label}
-                </button>
-            ))}
+          {sections.map((sec) => (
+            <button
+              key={sec.id}
+              onClick={() => scrollToSection(sec.id)}
+              className={`subnav-link ${activeSection === sec.id ? "active" : ""}`}
+            >
+              {sec.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -114,17 +112,17 @@ export default function HomePage() {
         <Sidebar cv={cv} copied={copied} onCopyEmail={copyEmail} />
 
         <section className="content">
-            <div id="summary"><SummarySection text={cv.summary} /></div>
-            <div id="skills"><SkillsSection cv={cv} /></div>
-            <div id="education"><EducationSection cv={cv} /></div>
-            <div id="experience"><ExperienceSection cv={cv} /></div>
-            <div id="certificates">
-                <CertificatesSection
-                    certificates={cv.certificates}
-                    onSelect={setSelectedCert}
-                />
-            </div>
-            <div id="projects"><ProjectsSection cv={cv} /></div>
+          <div id="summary"><SummarySection text={cv.summary} /></div>
+          <div id="skills"><SkillsSection cv={cv} /></div>
+          <div id="education"><EducationSection cv={cv} /></div>
+          <div id="experience"><ExperienceSection cv={cv} /></div>
+          <div id="certificates">
+            <CertificatesSection
+              certificates={cv.certificates}
+              onSelect={setSelectedCert}
+            />
+          </div>
+          <div id="projects"><ProjectsSection cv={cv} /></div>
 
           <footer className="footer muted small">
             Built with ASP.NET Core Web API + React Vite • Data source: cv.json
