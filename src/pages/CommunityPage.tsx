@@ -26,13 +26,20 @@ export default function CommunityPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showMyComments, setShowMyComments] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchComments = async () => {
+  const fetchComments = async (search = "") => {
     setLoading(true);
     try {
-      const endpoint = showMyComments
+      // بناء الرابط الأساسي
+      let endpoint = showMyComments
         ? `${API_BASE}/api/community/my-comments`
         : `${API_BASE}/api/community`;
+
+      // إضافة بارامتر البحث إذا وجد
+      if (search) {
+        endpoint += endpoint.includes('?') ? `&search=${search}` : `?search=${search}`;
+      }
 
       const headers: any = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -50,8 +57,17 @@ export default function CommunityPage() {
   };
 
   useEffect(() => {
-    fetchComments();
+    // إذا كان مربع البحث فارغاً، نجلب الكل. إذا فيه نص، نبقي النتيجة الحالية أو نعيد البحث
+    // هنا سنعيد الجلب بدون بحث عند تغيير التبويب (Show All / My Comments) لتجنب تضارب الفلاتر
+    if (!searchTerm) fetchComments();
+    else fetchComments(searchTerm);
   }, [showMyComments, token]);
+
+  // 👇 4. دالة التعامل مع زر البحث
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchComments(searchTerm);
+  };
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,7 +173,31 @@ export default function CommunityPage() {
               </div>
             </div>
           )}
+          <div className="card" style={{ marginBottom: '20px', padding: '15px' }}>
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+              <input
+                type="text"
+                placeholder="Search comments or users..."
+                className="auth-input"
+                style={{ marginBottom: 0 }}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button type="submit" className="auth-btn" style={{ width: 'auto' }}>
+                Search 🔍
+              </button>
 
+              {searchTerm && (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => { setSearchTerm(""); fetchComments(""); }}
+                >
+                  Clear
+                </button>
+              )}
+            </form>
+          </div>
           <div className="timeline">
             {loading ? (
               <div style={{ textAlign: 'center', padding: '20px' }}>
@@ -185,14 +225,14 @@ export default function CommunityPage() {
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', alignItems: 'center' }}>
                         <span style={{ fontWeight: 'bold' }}>
-                          {comment.user?.firstName} {comment.user?.lastName}
+                          {comment.user?.firstName ? `${comment.user.firstName} ${comment.user.lastName || ''}` : "Unknown User"}
                         </span>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <span className="small muted">{formatDate(comment.createdAt)}</span>
 
                           {/* User only delete button */}
-                          {user && user.id === comment.userId && (
+                          {user && (user.id === comment.userId || user.role === "Admin") && (
                             <button
                               onClick={() => handleDelete(comment.id)}
                               style={{

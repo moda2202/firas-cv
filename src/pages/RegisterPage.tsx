@@ -58,7 +58,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE}/register`, {
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -111,6 +111,7 @@ export default function RegisterPage() {
                   placeholder="First name"
                   onChange={handleChange}
                   required
+                  minLength={2}
                   autoComplete="given-name"
                 />
               </div>
@@ -122,10 +123,14 @@ export default function RegisterPage() {
                   placeholder="Last name"
                   onChange={handleChange}
                   required
+                  minLength={2}
                   autoComplete="family-name"
                 />
               </div>
             </div>
+            <p className="muted" style={{ fontSize: '0.75rem', marginTop: '-4px', marginBottom: '8px' }}>
+              Names must be at least 2 characters, letters only.
+            </p>
 
             {/* Email */}
             <div className="auth-field">

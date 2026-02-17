@@ -60,6 +60,17 @@ export function AuthHeader() {
                     >
                         Community
                     </Link>
+
+                    {user?.role === "Admin" && (
+                        <Link
+                            to="/admin"
+                            className={`nav-link ${isActive("/admin") ? "active" : ""}`}
+                            style={{ color: '#fca5a5', fontWeight: 'bold' }} // لون مميز للأدمن
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Dashboard 🛡️
+                        </Link>
+                    )}
                 </nav>
 
                 {/* 3. Right: Auth Action */}
