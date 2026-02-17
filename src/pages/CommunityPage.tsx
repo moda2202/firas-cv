@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { API_BASE } from "../config";
 import { AuthHeader } from "../components/layout/AuthHeader";
 
-// Define shape of data appearing from backend
 interface CommentUser {
   firstName: string;
   lastName: string;
@@ -20,7 +19,7 @@ interface Comment {
 }
 
 export default function CommunityPage() {
-  const { token, user } = useAuth(); // user contains my id
+  const { token, user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
@@ -28,15 +27,17 @@ export default function CommunityPage() {
   const [showMyComments, setShowMyComments] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // 👇 متغيرات جديدة للتعديل
+  const [editingId, setEditingId] = useState<number | null>(null); // معرف التعليق الذي يتم تعديله
+  const [editText, setEditText] = useState(""); // النص الجديد أثناء التعديل
+
   const fetchComments = async (search = "") => {
     setLoading(true);
     try {
-      // بناء الرابط الأساسي
-      let endpoint = showMyComments
+      let endpoint = showMyComments && token
         ? `${API_BASE}/api/community/my-comments`
         : `${API_BASE}/api/community`;
-
-      // إضافة بارامتر البحث إذا وجد
+      
       if (search) {
         endpoint += endpoint.includes('?') ? `&search=${search}` : `?search=${search}`;
       }
@@ -57,13 +58,11 @@ export default function CommunityPage() {
   };
 
   useEffect(() => {
-    // إذا كان مربع البحث فارغاً، نجلب الكل. إذا فيه نص، نبقي النتيجة الحالية أو نعيد البحث
-    // هنا سنعيد الجلب بدون بحث عند تغيير التبويب (Show All / My Comments) لتجنب تضارب الفلاتر
-    if (!searchTerm) fetchComments();
+    if (!token) setShowMyComments(false);
+    if (!searchTerm) fetchComments(); 
     else fetchComments(searchTerm);
   }, [showMyComments, token]);
 
-  // 👇 4. دالة التعامل مع زر البحث
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchComments(searchTerm);
@@ -98,15 +97,11 @@ export default function CommunityPage() {
 
   const handleDelete = async (commentId: number) => {
     if (!confirm("Are you sure you want to delete this comment?")) return;
-
     try {
       const response = await fetch(`${API_BASE}/api/community/${commentId}`, {
         method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { "Authorization": `Bearer ${token}` },
       });
-
       if (response.ok) {
         setComments(comments.filter(c => c.id !== commentId));
       } else {
@@ -114,6 +109,46 @@ export default function CommunityPage() {
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+
+  const startEditing = (comment: Comment) => {
+    setEditingId(comment.id);
+    setEditText(comment.content);
+  };
+
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
+
+  const saveEdit = async (commentId: number) => {
+    if (!editText.trim()) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/api/community/${commentId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: editText }),
+      });
+
+      if (response.ok) {
+     
+        setComments(comments.map(c => 
+          c.id === commentId ? { ...c, content: editText } : c
+        ));
+        setEditingId(null);
+      } else {
+        alert("Failed to update comment");
+      }
+    } catch (error) {
+      alert("Error updating comment");
     }
   };
 
@@ -136,6 +171,27 @@ export default function CommunityPage() {
             <p className="hero-title">Share your thoughts, feedback, or say hi!</p>
           </div>
 
+          <div className="card" style={{ marginBottom: '20px', padding: '15px' }}>
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+              <input 
+                type="text" 
+                placeholder="Search comments or users..." 
+                className="auth-input"
+                style={{ marginBottom: 0 }}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button type="submit" className="auth-btn" style={{ width: 'auto' }}>
+                Search 🔍
+              </button>
+              {searchTerm && (
+                <button type="button" className="btn" onClick={() => { setSearchTerm(""); fetchComments(""); }}>
+                  Clear
+                </button>
+              )}
+            </form>
+          </div>
+
           {token ? (
             <div className="card" style={{ marginBottom: '24px' }}>
               <form onSubmit={handlePost}>
@@ -156,7 +212,6 @@ export default function CommunityPage() {
                   >
                     {showMyComments ? "Show All" : "Show My Comments"}
                   </button>
-
                   <button type="submit" className="auth-btn" style={{ width: 'auto', padding: '10px 24px' }} disabled={submitting || !newComment.trim()}>
                     {submitting ? "Posting..." : "Post Comment 🚀"}
                   </button>
@@ -166,38 +221,14 @@ export default function CommunityPage() {
           ) : (
             <div className="card" style={{ textAlign: 'center', padding: '30px', marginBottom: '24px', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
               <h3>Join the conversation! 💬</h3>
-              <p className="muted" style={{ marginBottom: '16px' }}>Log in to share your feedback and connect with others.</p>
+              <p className="muted" style={{ marginBottom: '16px' }}>Log in to share your feedback and post comments.</p>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                 <Link to="/login" className="auth-btn" style={{ width: 'auto', textDecoration: 'none' }}>Log In</Link>
                 <Link to="/register" className="btn">Sign Up</Link>
               </div>
             </div>
           )}
-          <div className="card" style={{ marginBottom: '20px', padding: '15px' }}>
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
-              <input
-                type="text"
-                placeholder="Search comments or users..."
-                className="auth-input"
-                style={{ marginBottom: 0 }}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button type="submit" className="auth-btn" style={{ width: 'auto' }}>
-                Search 🔍
-              </button>
 
-              {searchTerm && (
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => { setSearchTerm(""); fetchComments(""); }}
-                >
-                  Clear
-                </button>
-              )}
-            </form>
-          </div>
           <div className="timeline">
             {loading ? (
               <div style={{ textAlign: 'center', padding: '20px' }}>
@@ -205,7 +236,9 @@ export default function CommunityPage() {
               </div>
             ) : comments.length === 0 ? (
               <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-                <p className="muted">No comments yet. Be the first to say hi! 👋</p>
+                <p className="muted">
+                  {searchTerm ? `No results found for "${searchTerm}"` : "No comments yet. Be the first to say hi! 👋"}
+                </p>
               </div>
             ) : (
               comments.map((comment) => (
@@ -219,7 +252,7 @@ export default function CommunityPage() {
                       fontWeight: 'bold', fontSize: '18px', color: '#fff',
                       flexShrink: 0
                     }}>
-                      {comment.user?.initial || "?"}
+                      {comment.user?.firstName ? comment.user.firstName[0].toUpperCase() : "?"}
                     </div>
 
                     <div style={{ flex: 1 }}>
@@ -228,34 +261,66 @@ export default function CommunityPage() {
                           {comment.user?.firstName ? `${comment.user.firstName} ${comment.user.lastName || ''}` : "Unknown User"}
                         </span>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span className="small muted">{formatDate(comment.createdAt)}</span>
 
-                          {/* User only delete button */}
-                          {user && (user.id === comment.userId || user.role === "Admin") && (
-                            <button
-                              onClick={() => handleDelete(comment.id)}
-                              style={{
-                                background: 'none', border: 'none', cursor: 'pointer',
-                                color: '#ef4444', padding: '4px', display: 'flex'
-                              }}
-                              title="Delete comment"
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            </button>
+                        
+                          {user && (
+                            <>
+                             
+                              {user.id === comment.userId && editingId !== comment.id && (
+                                <button
+                                  onClick={() => startEditing(comment)}
+                                  className="icon-btn"
+                                  title="Edit comment"
+                                  style={{ color: '#fbbf24', background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}
+                                >
+                                  ✏️
+                                </button>
+                              )}
+
+                              
+                              {(user.id === comment.userId || user.role === "Admin") && editingId !== comment.id && (
+                                <button
+                                  onClick={() => handleDelete(comment.id)}
+                                  className="icon-btn"
+                                  style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}
+                                  title="Delete comment"
+                                >
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
-                      <p style={{ margin: 0, lineHeight: '1.6', color: 'rgba(255,255,255,0.85)' }}>
-                        {comment.content}
-                      </p>
+
+                      
+                      {editingId === comment.id ? (
+                        <div style={{ marginTop: '8px' }}>
+                          <textarea
+                            className="auth-input"
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            rows={2}
+                            style={{ marginBottom: '8px' }}
+                          />
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button onClick={() => saveEdit(comment.id)} className="btn primary" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>Save</button>
+                            <button onClick={cancelEditing} className="btn ghost" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p style={{ margin: 0, lineHeight: '1.6', color: 'rgba(255,255,255,0.85)' }}>
+                          {comment.content}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
               ))
             )}
           </div>
-
         </div>
       </div>
     </div>

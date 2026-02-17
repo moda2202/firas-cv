@@ -86,7 +86,7 @@ export function CertificateModal({
                   The main technical training spans six months, starting <strong>November 3rd</strong> and concluding <strong>April 29th, 2026</strong>. This intensive period is designed for those who demonstrate high potential during the selection process.
                 </p>
                 <p style={{ marginTop: '20px', padding: '15px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', borderLeft: '4px solid rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
-                  The journey concludes with a professional internship (APL/praktik) from <strong>April 30th to August 10th, 2026</strong>
+                  The journey concludes with a professional internship (APL/praktik) from <strong>April 30th to August 10th, 2026</strong>, providing real-world experience to solidify the fullstack .NET development skills.
                 </p>
               </div>
             </div>
