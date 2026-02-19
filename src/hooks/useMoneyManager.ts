@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import type { DashboardItem, FinancialMonth, CreateMonthRequest, CreateBillRequest } from "../types/money";
-
-const API_URL = "http://localhost:5135/api/MoneyManager";
+import { API_BASE } from '../config';
+const BASE_URL = `${API_BASE}/MoneyManager`;
 
 export function useMoneyManager() {
     const { token } = useAuth();
@@ -13,7 +13,7 @@ export function useMoneyManager() {
     const authFetch = async (endpoint: string, options: RequestInit = {}) => {
         if (!token) throw new Error("No token found");
 
-        const res = await fetch(`${API_URL}${endpoint}`, {
+        const res = await fetch(`${BASE_URL}${endpoint}`, {
             ...options,
             headers: {
                 "Content-Type": "application/json",
