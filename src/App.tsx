@@ -45,6 +45,7 @@ export default function App() {
           />
 
           <Route path="/admin" element={<AdminDashboard />} />
+          
         </Routes>
       </Router>
     </AuthProvider>

@@ -87,7 +87,7 @@ export function AuthHeader() {
                         <Link
                             to="/admin"
                             className={`nav-link ${isActive("/admin") ? "active" : ""}`}
-                            style={{ color: '#fca5a5', fontWeight: 'bold' }} 
+                            style={{ color: '#fca5a5', fontWeight: 'bold' }}
                             onClick={() => setMobileMenuOpen(false)}
                         >
                             {t('nav_dashboard', 'Dashboard')} 🛡️
@@ -97,7 +97,7 @@ export function AuthHeader() {
 
                 {/* 3. Right: Auth Action */}
                 <div className="auth-actions" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    
+
                     {/* 👇 4. وضع زر تغيير اللغات هنا ليكون أنيقاً */}
                     <LanguageSwitcher />
 
