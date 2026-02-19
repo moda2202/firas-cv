@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import type { DashboardItem, FinancialMonth, CreateMonthRequest, CreateBillRequest } from "../types/money";
 import { API_BASE } from '../config';
-const BASE_URL = `${API_BASE}/MoneyManager`;
+const BASE_URL = `${API_BASE}/api/MoneyManager`;
 
 export function useMoneyManager() {
     const { token } = useAuth();
