@@ -1,0 +1,9 @@
+{
+  "translation": {
+    "nav_dashboard": "Dashboard",
+    "nav_money": "Money Manager",
+    "nav_community": "Community",
+    "nav_login": "Log In",
+    "nav_logout": "Log Out"
+  }
+}

@@ -2,11 +2,18 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
+// 👇 1. استيراد هوك الترجمة وزر تغيير اللغات
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+
 export function AuthHeader() {
     const { user, logout, token } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    // 👇 2. تفعيل هوك الترجمة (هاد هو العقل المدبر)
+    const { t } = useTranslation();
 
     const handleLogout = () => {
         logout();
@@ -51,24 +58,24 @@ export function AuthHeader() {
                         className={`nav-link ${isActive("/") ? "active" : ""}`}
                         onClick={() => setMobileMenuOpen(false)}
                     >
-                        CV Resume
+                        {/* 👇 3. استبدال النصوص الثابتة بالترجمة */}
+                        {t('nav_resume', 'CV Resume')}
                     </Link>
                     <Link
                         to="/community"
                         className={`nav-link ${isActive("/community") ? "active" : ""}`}
                         onClick={() => setMobileMenuOpen(false)}
                     >
-                        Community
+                        {t('nav_community', 'Community')}
                     </Link>
 
-                    {/* 👇 الإضافة الجديدة هنا: يظهر فقط للمسجلين دخول */}
                     {token && (
                         <Link
                             to="/money-manager"
                             className={`nav-link ${isActive("/money-manager") ? "active" : ""}`}
                             onClick={() => setMobileMenuOpen(false)}
                         >
-                            Money 💰
+                            {t('nav_money', 'Money')} 💰
                         </Link>
                     )}
 
@@ -76,39 +83,41 @@ export function AuthHeader() {
                         <Link
                             to="/admin"
                             className={`nav-link ${isActive("/admin") ? "active" : ""}`}
-                            style={{ color: '#fca5a5', fontWeight: 'bold' }} // لون مميز للأدمن
+                            style={{ color: '#fca5a5', fontWeight: 'bold' }} 
                             onClick={() => setMobileMenuOpen(false)}
                         >
-                            Dashboard 🛡️
+                            {t('nav_dashboard', 'Dashboard')} 🛡️
                         </Link>
                     )}
                 </nav>
 
                 {/* 3. Right: Auth Action */}
-                <div className="auth-actions">
+                <div className="auth-actions" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    
+                    {/* 👇 4. وضع زر تغيير اللغات هنا ليكون أنيقاً */}
+                    <LanguageSwitcher />
+
                     {token ? (
-                        // Logged in state: Show name + logout
                         <div className="user-profile">
                             <div className="user-info">
-                                <span className="user-name">Hi, {user?.firstName || 'User'}</span>
+                                <span className="user-name">{t('nav_hi', 'Hi')}, {user?.firstName || 'User'}</span>
                                 <div className="user-avatar">{userInitial}</div>
                             </div>
                             <button
                                 onClick={handleLogout}
                                 className="btn ghost small-btn"
-                                title="Log Out"
+                                title={t('nav_logout', 'Log Out')}
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
                             </button>
                         </div>
                     ) : (
-                        // Guest state: Show login
                         <div className="guest-actions">
                             <Link to="/login" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
-                                Log In
+                                {t('nav_login', 'Log In')}
                             </Link>
                             <Link to="/register" className="btn primary-btn" onClick={() => setMobileMenuOpen(false)}>
-                                Join Now
+                                {t('nav_register', 'Join Now')}
                             </Link>
                         </div>
                     )}
