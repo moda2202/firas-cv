@@ -61,6 +61,17 @@ export function AuthHeader() {
                         Community
                     </Link>
 
+                    {/* 👇 الإضافة الجديدة هنا: يظهر فقط للمسجلين دخول */}
+                    {token && (
+                        <Link
+                            to="/money-manager"
+                            className={`nav-link ${isActive("/money-manager") ? "active" : ""}`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Money 💰
+                        </Link>
+                    )}
+
                     {user?.role === "Admin" && (
                         <Link
                             to="/admin"

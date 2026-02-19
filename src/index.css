@@ -70,6 +70,11 @@ a:hover {
   box-sizing: border-box;
 }
 
+.page-top {
+  justify-content: flex-start; /* يلغي التوسيط العمودي */
+  padding-top: 40px; /* يعطي مسافة جميلة من الأعلى */
+}
+
 @media (max-width: 640px) {
   .page-center {
     justify-content: flex-start;
